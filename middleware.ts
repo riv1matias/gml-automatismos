@@ -27,6 +27,12 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
+  const isApi = path.startsWith("/api");
+
+  // Las rutas de API resuelven su propio 401/403 en JSON; nunca las redirigimos.
+  if (isApi) {
+    return response;
+  }
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
